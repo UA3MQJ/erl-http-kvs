@@ -1,0 +1,11 @@
+{application,kvs,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{kvs_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[kvs_app,kvs_sup,kvs_db_gen]},
+              {maintainers,[]},
+              {licenses,[]},
+              {links,[]}]}.
