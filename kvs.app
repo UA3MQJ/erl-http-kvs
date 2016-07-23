@@ -5,7 +5,7 @@
               {mod,{kvs_app,[]}},
               {applications,[kernel,stdlib]},
               {env,[]},
-              {modules,[kvs_app,kvs_sup,kvs_db_gen]},
+              {modules,[kvs_app,kvs_sup,kvs_db_gen,kvs_http_gen]},
               {maintainers,[]},
               {licenses,[]},
               {links,[]}]}.
