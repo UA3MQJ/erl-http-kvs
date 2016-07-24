@@ -1,5 +1,5 @@
 {application,kvs,
-             [{description,"An OTP application"},
+             [{description,"Erlang HTTP KVS"},
               {vsn,"0.1.0"},
               {registered,[]},
               {mod,{kvs_app,[]}},
