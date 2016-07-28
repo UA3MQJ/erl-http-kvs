@@ -7,16 +7,16 @@ Build
 -----
 
     $ rebar3 compile
+    $ rebar3 release
 
 Start
 -----
 
-    erl
-    1> application:start(kvs).
+    $ ./_build/default/rel/kvs/bin/kvs -noshell
 
 Test
 -----
 
     curl -X GET http://localhost:8080/abc -i
-    curl --data "123" http://localhost:8080/abc
+    curl -X PUT --data "123" http://localhost:8080/abc
     curl -X DELETE http://localhost:8080/abc -i

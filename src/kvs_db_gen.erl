@@ -1,9 +1,6 @@
 -module(kvs_db_gen).
 -behaviour(gen_server).
 
-%% databasr file name
--define(DBASE_FILE, "base.dat").
-
 %%API
 -export([start_link/0]).
 -export([select/1, insert/2, update/2, delete/1]).
@@ -31,8 +28,8 @@ delete(Key) ->
 
 init([]) ->
     %File_name = code:priv_dir(us)++"/"++?DBASE_FILE,
-    FileName = "/home/sea/erl-http-kvs/priv/"++?DBASE_FILE,
-    {ok, Ref} = dets:open_file(FileName),
+    %FileName = "/home/sea/erl-http-kvs/priv/"++?DBASE_FILE,
+    {ok, Ref} = dets:open_file(base, [{type, set}]),
     State = Ref,
     {ok, State}.
 
