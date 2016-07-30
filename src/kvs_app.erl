@@ -15,6 +15,14 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
+    Dispatch = cowboy_router:compile([
+        {'_', [{'_', rest_handler, []}]}
+    ]),
+
+    cowboy:start_http(kvs_http_listener, 100, [{port, 8080}],
+        [{env, [{dispatch, Dispatch}]}]
+    ),
+
     kvs_sup:start_link().
 
 %%--------------------------------------------------------------------

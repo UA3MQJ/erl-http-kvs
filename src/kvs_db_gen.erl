@@ -3,7 +3,7 @@
 
 %%API
 -export([start_link/0]).
--export([select/1, insert/2, update/2, delete/1]).
+-export([select/1, insert/2, update/2, delete/1, exist/1]).
 
 %%GEN_SERVER callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, 
@@ -26,12 +26,11 @@ update(Key, Value) ->
 delete(Key) ->
     gen_server:call(?SERVER, {delete, Key}).
 
+exist(Key) ->
+  gen_server:call(?SERVER, {exist, Key}).
+
 init([]) ->
-    %File_name = code:priv_dir(us)++"/"++?DBASE_FILE,
-    %FileName = "/home/sea/erl-http-kvs/priv/"++?DBASE_FILE,
-    {ok, Ref} = dets:open_file(base, [{type, set}]),
-    State = Ref,
-    {ok, State}.
+  dets:open_file(base, [{type, set}]). % return {ok, Ref}  % Ref is State
 
 handle_call({select, Key}, _From, State) ->
   Response = case dets:lookup(State, Key) of
@@ -41,20 +40,19 @@ handle_call({select, Key}, _From, State) ->
   {reply, Response, State};
 
 handle_call({insert, Key, Value}, _From, State) ->
-  Response = dets:insert(State, {Key, Value}),
-  {reply, Response, State};
+  {reply, dets:insert(State, {Key, Value}), State};
 
 handle_call({update, Key, Value}, _From, State) ->
-  Response = dets:insert(State, {Key, Value}),
-  {reply, Response, State};
+  {reply, dets:insert(State, {Key, Value}), State};
 
 handle_call({delete, Key}, _From, State) ->
-  Response = dets:delete(State, Key),
-  {reply, Response, State};
+  {reply, dets:delete(State, Key), State};
+
+handle_call({exist, Key}, _From, State) ->
+  {reply, dets:lookup(State, Key)/=[], State};
 
 handle_call(_Request, _From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+    {reply, ok, State}.
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
