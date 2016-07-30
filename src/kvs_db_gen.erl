@@ -3,7 +3,7 @@
 
 %%API
 -export([start_link/0]).
--export([select/1, insert/2, update/2, delete/1, exist/1]).
+-export([select/1, insert/3, update/3, delete/1, exist/1]).
 
 %%GEN_SERVER callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, 
@@ -17,11 +17,11 @@ start_link() ->
 select(Key) -> 
     gen_server:call(?SERVER, {select, Key}).
 
-insert(Key, Value) ->
-    gen_server:call(?SERVER, {insert, Key, Value}).
+insert(Key, Value, Ttl) ->
+    gen_server:call(?SERVER, {insert, Key, Value, Ttl}).
 
-update(Key, Value) ->
-    gen_server:call(?SERVER, {update, Key, Value}).
+update(Key, Value, Ttl) ->
+    gen_server:call(?SERVER, {update, Key, Value, Ttl}).
 
 delete(Key) ->
     gen_server:call(?SERVER, {delete, Key}).
@@ -35,15 +35,16 @@ init([]) ->
 handle_call({select, Key}, _From, State) ->
   Response = case dets:lookup(State, Key) of
                [] -> null;
-               [{Key, Value}] -> Value
+               [{Key, {Value, _Ttl}}] -> Value;
+               _ -> null
              end,
   {reply, Response, State};
 
-handle_call({insert, Key, Value}, _From, State) ->
-  {reply, dets:insert(State, {Key, Value}), State};
+handle_call({insert, Key, Value, Ttl}, _From, State) ->
+  {reply, dets:insert(State, {Key, {Value, Ttl}}), State};
 
-handle_call({update, Key, Value}, _From, State) ->
-  {reply, dets:insert(State, {Key, Value}), State};
+handle_call({update, Key, Value, Ttl}, _From, State) ->
+  {reply, dets:insert(State, {Key, {Value, Ttl}}), State};
 
 handle_call({delete, Key}, _From, State) ->
   {reply, dets:delete(State, Key), State};
