@@ -33,24 +33,19 @@ init([]) ->
   dets:open_file(base, [{type, set}]). % return {ok, Ref}  % Ref is State
 
 handle_call({select, Key}, _From, State) ->
-  Response = case dets:lookup(State, Key) of
-               [] -> null;
-               [{Key, {Value, _Ttl}}] -> Value;
-               _ -> null
-             end,
-  {reply, Response, State};
+  {reply, get_value(State, Key), State};
 
 handle_call({insert, Key, Value, Ttl}, _From, State) ->
-  {reply, dets:insert(State, {Key, {Value, Ttl}}), State};
+  {reply, dets:insert(State, {Key, {Value, Ttl, erlang:timestamp()}}), State}; %% see timer:now_diff/2.
 
 handle_call({update, Key, Value, Ttl}, _From, State) ->
-  {reply, dets:insert(State, {Key, {Value, Ttl}}), State};
+  {reply, dets:insert(State, {Key, {Value, Ttl, erlang:timestamp()}}), State};
 
 handle_call({delete, Key}, _From, State) ->
   {reply, dets:delete(State, Key), State};
 
 handle_call({exist, Key}, _From, State) ->
-  {reply, dets:lookup(State, Key)/=[], State};
+  {reply, get_value(State, Key)/=null, State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -67,3 +62,18 @@ terminate(_Reason, State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+get_value(State, Key) ->
+  case dets:lookup(State, Key) of
+    [] -> null;
+    [{Key, {Value, Ttl, CreatedTime}}] ->
+     RealTTL = timer:now_diff(erlang:timestamp(), CreatedTime),
+     case ((RealTTL/1000000) < Ttl) of
+       true ->
+          Value;
+       _ ->
+         dets:delete(State, Key), %% remove when exist
+         null
+     end;
+    _ -> null
+  end.

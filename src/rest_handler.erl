@@ -51,7 +51,8 @@ multipart(Req, {Value, Ttl}) ->
 			end,
 			multipart(Req3, {NewValue, NewTtl});
 		{done, _Req2} ->
-			{Value, Ttl}
+			{TtlInt,_} = string:to_integer(binary_to_list(Ttl)),
+			{Value,  TtlInt}
 	end.
 
 put_mdata(Req, State) ->
