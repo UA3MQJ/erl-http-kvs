@@ -31,7 +31,9 @@ start_link() ->
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [ ?CHILD(kvs_db_gen,worker)]} }.
+    {ok, { {one_for_one, 5, 10}, [ ?CHILD(kvs_db_gen,worker),
+                                   ?CHILD(kvs_db_clean_gen,worker)
+                                 ]} }.
 
 %%====================================================================
 %% Internal functions
